@@ -1,0 +1,28 @@
+<html>
+<head>
+    {% if title %}
+    <title>{{title}} - blog</title>
+    {% else %}
+    <title>blog</title>
+    {% endif %}
+</head>
+<body>
+<div>
+    blog:
+    <a href="{{url_for('views.index')}}">Home</a>
+    <a href="{{url_for('views.login')}}">Login</a>
+</div>
+
+<hr>
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+<ul>
+    {% for message in messages %}
+    <li>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endwith %}
+{% block content %}{% endblock %}
+</body>
+</html>
