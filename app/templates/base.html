@@ -10,7 +10,15 @@
 <div>
     blog:
     <a href="{{url_for('views.index')}}">Home</a>
-    <a href="{{url_for('views.login')}}">Login</a>
+    {% if current_user.is_anonymous %}
+      <a href="{{ url_for('views.login') }}">Login</a>
+      <a href="{{url_for('views.register')}}">register</a>
+    {% else %}
+    <a href="{{url_for('views.register')}}">register</a>
+    <a href="{{ url_for('views.user', username=current_user.username) }}">Profile</a>
+    <a href="{{url_for('views.logout')}}">logout</a>
+    {% endif %}
+
 </div>
 
 <hr>

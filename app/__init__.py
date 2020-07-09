@@ -2,7 +2,7 @@ from flask import Flask, render_template
 from flask_login import LoginManager
 from flask_migrate import Migrate
 
-from app.models import db
+from app.models import db, login
 from config import Config
 
 app = Flask(__name__)
@@ -11,7 +11,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
 
 db.init_app(app)
 migrate = Migrate(app, db)
-login = LoginManager(app)
+login.init_app(app)
 
 
 def main():
