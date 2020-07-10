@@ -19,3 +19,18 @@ class Config(object):
     MAIL_USERNAME = 'username'
     MAIL_PASSWORD = 'password'
     ADMINS = ['admin@gmail.com']
+    POSTS_PER_PAGE = 3
+
+
+SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-will-never-guess'
+CSRF_ENABLED = True
+
+SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
+                          'sqlite:///' + os.path.join(basedir, 'app.db')
+SQLALCHEMY_TRACK_MODIFICATIONS = False
+MAIL_SERVER = 'smtp.googlemail.com'
+MAIL_PORT = 587
+# MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS') is not None
+MAIL_USE_TLS = 1
+# MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
+POSTS_PER_PAGE = 3

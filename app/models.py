@@ -1,15 +1,18 @@
 from datetime import datetime
 
+from flask import current_app
 from flask_sqlalchemy import SQLAlchemy
+import jwt
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from flask_login import LoginManager
+from time import time
+
+import config
 
 db = SQLAlchemy()
 login = LoginManager()
 login.login_view = 'views.login'
-
-
 
 
 @login.user_loader
@@ -18,9 +21,10 @@ def load_user(id):
 
 
 followers = db.Table('followers',
-    db.Column('follower_id', db.Integer, db.ForeignKey('user.id')),
-    db.Column('followed_id', db.Integer, db.ForeignKey('user.id'))
-)
+                     db.Column('follower_id', db.Integer, db.ForeignKey('user.id')),
+                     db.Column('followed_id', db.Integer, db.ForeignKey('user.id'))
+                     )
+
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -80,9 +84,28 @@ class User(UserMixin, db.Model):
     def followed_posts(self):
         followed = Post.query.join(
             followers, (followers.c.followed_id == Post.user_id)).filter(
-                followers.c.follower_id == self.id)
+            followers.c.follower_id == self.id)
         own = Post.query.filter_by(user_id=self.id)
         return followed.union(own).order_by(Post.timestamp.desc())
+
+    def get_reset_password_token(self, expires_in=600):
+        token = jwt.encode(
+            {'reset_password': self.id, 'exp': time() + expires_in},
+            current_app.config['SECRET_KEY'], algorithm='HS256').decode('utf-8')
+        print('topen, ', token)
+        return token
+
+    @staticmethod
+    def verify_reset_password_token(token):
+        try:
+            code = jwt.decode(token,
+                              current_app.config['SECRET_KEY'],
+                              algorithms=['HS256'])
+            print('code', code)
+            id = code['reset_password']
+        except:
+            return
+        return User.query.get(id)
 
 
 class Post(db.Model):
@@ -93,4 +116,3 @@ class Post(db.Model):
 
     def __repr__(self):
         return '<Post {}>'.format(self.body)
-
