@@ -2,8 +2,11 @@ from flask import Flask, render_template
 from flask_login import LoginManager
 from flask_migrate import Migrate
 
+from app.errors import register_error
 from app.models import db, login
 from config import Config
+import logging
+from logging.handlers import SMTPHandler
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -14,9 +17,16 @@ migrate = Migrate(app, db)
 login.init_app(app)
 
 
-def main():
+
+
+def register_blueprints():
     from app.views import app as views
     app.register_blueprint(views)
+
+
+def main():
+    register_blueprints()
+    register_error(app)
     app.run(host='0.0.0.0', debug=True)
 
 
