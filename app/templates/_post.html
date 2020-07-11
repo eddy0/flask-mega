@@ -1,10 +1,17 @@
- <table>
-        <tr valign="top">
-            <td>
-                <a href="{{ url_for('views.user', username=post.author.username) }}">
-                    {{ post.author.username }}
-                </a>
-                says:<br>{{ post.body }}
-            </td>
-        </tr>
-    </table>
+<table class="table table-hover">
+    <tr>
+        <td width="70px">
+            <a href="{{ url_for('views.user', username=post.author.username) }}">
+                <img src="{{ '' }}"/>
+            </a>
+        </td>
+        <td>
+            <a href="{{ url_for('views.user', username=post.author.username) }}">
+                {{ post.author.username }}
+            </a>
+            said {{ moment(post.timestamp).fromNow() }}:
+            <br>
+            {{ post.body }}
+        </td>
+    </tr>
+</table>
