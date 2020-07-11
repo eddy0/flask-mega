@@ -1,3 +1,4 @@
+from elasticsearch import Elasticsearch
 from flask import Flask
 from flask_bootstrap import Bootstrap
 from flask_migrate import Migrate
@@ -25,7 +26,7 @@ login.init_app(app)
 mail = Mail(app)
 bootstrap = Bootstrap(app)
 moment = Moment(app)
-
+app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']])
 
 def register_blueprints():
     from app.views import app as views

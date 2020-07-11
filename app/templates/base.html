@@ -19,15 +19,34 @@
             </div>
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav">
-                    <li><a href="{{ url_for('views.index') }}">Home</a></li>
-                    <li><a href="{{ url_for('views.explore') }}">Explore</a></li>
+                    <li>
+                        <a href="{{ url_for('views.index') }}">Home</a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('views.explore') }}">Explore</a>
+                    </li>
                 </ul>
+                {% if g.search_form %}
+                    <form class="navbar-form navbar-left" method="get"
+                          action="{{ url_for('views.search') }}">
+                        <div class="form-group">
+                            {{ g.search_form.q(size=20, class='form-control',
+                            placeholder=g.search_form.q.label.text) }}
+                        </div>
+                    </form>
+                {% endif %}
                 <ul class="nav navbar-nav navbar-right">
                     {% if current_user.is_anonymous %}
-                        <li><a href="{{ url_for('views.login') }}">Login</a></li>
+                        <li>
+                            <a href="{{ url_for('views.login') }}">Login</a>
+                        </li>
                     {% else %}
-                        <li><a href="{{ url_for('views.user', username=current_user.username) }}">Profile</a></li>
-                        <li><a href="{{ url_for('views.logout') }}">Logout</a></li>
+                        <li>
+                            <a href="{{ url_for('views.user', username=current_user.username) }}">Profile</a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('views.logout') }}">Logout</a>
+                        </li>
                     {% endif %}
                 </ul>
             </div>
@@ -46,7 +65,8 @@
         {% endwith %}
 
         {# application content needs to be provided in the app_content block #}
-        {% block app_content %}{% endblock %}
+        {% block app_content %}
+        {% endblock %}
     </div>
     {% block scripts %}
         {{ super() }}
