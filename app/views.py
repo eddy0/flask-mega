@@ -1,7 +1,10 @@
 from flask import render_template, Blueprint, flash, redirect, url_for, request, g, current_app, jsonify
+from flask_httpauth import HTTPBasicAuth
 from flask_login import current_user, login_user, logout_user, login_required
+from flask_socketio import emit
 from werkzeug.urls import url_parse
 
+from app.api.auth import auth
 from app.emails import send_password_reset_email
 from app.forms import LoginForm, RegistrationForm, EditProfileForm, EmptyForm, PostForm, ResetPasswordRequestForm, \
     ResetPasswordForm, SearchForm, MessageForm
@@ -36,7 +39,7 @@ def index():
     page = request.args.get('page', 1, type=int)
     posts = current_user.followed_posts().paginate(page, 3, False)
     next_url = url_for('views.index', page=posts.next_num) \
-    if posts.has_next else None
+        if posts.has_next else None
     prev_url = url_for('views.index', page=posts.prev_num) \
         if posts.has_prev else None
     return render_template('index.html',
@@ -59,7 +62,7 @@ def explore():
         if posts.has_next else None
     prev_url = url_for('views.explore', page=posts.prev_num) \
         if posts.has_prev else None
-    return render_template('index.html', title='Explore', posts=posts.items,next_url=next_url, prev_url=prev_url)
+    return render_template('index.html', title='Explore', posts=posts.items, next_url=next_url, prev_url=prev_url)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -228,7 +231,7 @@ def messages():
     page = request.args.get('page', 1, type=int)
     messages = current_user.messages_received.order_by(
         Message.timestamp.desc()).paginate(
-            page, current_app.config['POSTS_PER_PAGE'], False)
+        page, current_app.config['POSTS_PER_PAGE'], False)
     next_url = url_for('views.messages', page=messages.next_num) \
         if messages.has_next else None
     prev_url = url_for('views.messages', page=messages.prev_num) \
@@ -251,8 +254,10 @@ def send_message(recipient):
         db.session.commit()
         flash('Your message has been sent.')
         return redirect(url_for('views.user', username=recipient))
+
     return render_template('send_message.html', title='Send Message',
                            form=form, recipient=recipient)
+
 
 @app.route('/notifications')
 @login_required
@@ -265,3 +270,22 @@ def notifications():
         'data': n.get_data(),
         'timestamp': n.timestamp
     } for n in notifications])
+
+
+@app.route('/api/token')
+@auth.login_required
+def get_auth_token():
+    token = g.user.generate_auth_token()
+
+    return jsonify({'token': token.decode('ascii')})
+
+
+# @socketio.on('send')
+# def notify():
+#     notifications = current_user.notifications.filter(
+#         Notification.timestamp > 0).order_by(Notification.timestamp.asc())
+#     emit('notification', jsonify([{
+#         'name': n.name,
+#         'data': n.get_data(),
+#         'timestamp': n.timestamp
+#     } for n in notifications]))
